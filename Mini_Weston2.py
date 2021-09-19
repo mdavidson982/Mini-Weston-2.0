@@ -72,6 +72,7 @@ async def version(context, number):
     caller = context.author.voice.channel.id
     voice_channel = client.get_channel(caller)
 
+
     members = voice_channel.members
     memids = []
     for member in members:
