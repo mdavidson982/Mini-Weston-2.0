@@ -877,4 +877,4 @@ async def on_member_join(member):
 
 
 #run the client on the server and background task (change status every 24 hours)
-client.run('Nzg1MjU4MDcyNTEwODI0NDQ5.X81OkQ.Fhi7ul3gSrsFN5vNAo3AvSw0ycw')
+client.run('Nzg1MjU4MDcyNTEwODI0NDQ5.X81OkQ.KmyYRmz_E9MotwxrJxWLSPbhmJ8')
