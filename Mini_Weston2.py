@@ -1,20 +1,26 @@
 
+from asyncio import tasks
+from io import StringIO
+from os import name, stat
+from typing import overload
 import discord
 import random
+from discord.client import Client
+from discord.enums import Status
 from discord.ext import commands
+from discord.ext import tasks
 import csv
-westonid = 356088181671854081
-mattid = 215322500047962113
-anitaid = 314426905812008963
-liamid = 356190294645145610
-nickid = 226067872084918272
-adminID = [226067872084918272,356190294645145610,314426905812008963,215322500047962113]
+
+adminID = [226067872084918272,356190294645145610,314426905812008963,215322500047962113,226065427732627459]
+deciderID =[332321662513053696,255776481832206337,376381640039202827]
 intents = discord.Intents.all()
 ReactRolefile = open('React_Role_documentation.txt', 'r+')
-UserRolefile = open('User_Role_documentation.txt', 'r+')
+
 
 #Client (our bot)
 client = commands.Bot(command_prefix='-', intents = intents)
+
+client.remove_command('help')
 
 #Role name correlates with Role id, where x is in role x is in roleid, this array keeps the name of all the roles correlated with its react role message
 rolename = []
@@ -23,58 +29,230 @@ roleid = []
 #User and User ID will be used in the reinstate command
 userid = []
 user = []
-voicechannelID = [811110785472266240,811110585714343976,811110632525922354,811110528528809984,785260019209863224,811070630924779530,811070728199733268,811070757625921577,811110152744730625,811110454243491861,811110484014923786,811110504021753858,811110555720613918,811110727547879425,811110627660529664,811110778312196107]
+finnArray = []
+statusArray = []
+pollEmojis = ["1️⃣","2️⃣","3️⃣","4️⃣","5️⃣","6️⃣","7️⃣","8️⃣","9️⃣"]
+
+
+westonid = 356088181671854081
+mattid = 215322800047962113 
+
+#April fools day
+#voicechannelID = [739289572604903445,827063625863921684,827063824703946782,827063852093014067,827063889509220362,827063920069050388,827063946522394654,827063971739205652,827063998700322836,827064047597780992]
+
+#NDOM default 
+voicechannelID = [739289069862780970,738604934894714941,738605079237754980,753356829362356306,799175016876998697,738605353385852978,792590301239181322,738606157865943083,786424105044803624,739289572604903445,814707296755777566]
+statusesUsed = []
+
+#testing channel 
+# voicechannelID = [811110785472266240,811110585714343976,811110632525922354,811110528528809984,785260019209863224,811070630924779530,811070728199733268,811070757625921577,811110152744730625,811110454243491861,811110484014923786,811110504021753858,811110555720613918,811110727547879425,811110627660529664,811110778312196107]
+
+
+#Testing channel
+#guildID = (785260019209863220)
+
+#NDOM 
+guildID = (355505175085187073)
+
+
+
 #On start up
 @client.event
 async def on_ready():
-    general_channel = client.get_channel(785260436568276992)
-    try: 
-        with open('React_Role_documentation.txt') as csvfile:
-            file = csv.reader(csvfile)
+    general_channel = client.get_channel(738603332637294642)
+    
+     
+    with open('React_Role_documentation.txt', encoding="UTF-8") as csvfile:
+        file = csv.reader(csvfile)
         
-            for rec in file:
-                rolename.append(rec[0])
-                roleid.append(rec[1])
-                
-        print(rolename)
-        print(roleid)          
-        file.close()
-                
-    except:
-        print("React role file is empty!")
+        for rec in file:
+            rolename.append(rec[0]) 
+            roleid.append(rec[1]) 
+    csvfile.close         
+    print("React Roll system")
+    print(rolename)
+    print(roleid)
 
-    await client.change_presence(status = discord.Status.do_not_disturb, activity= discord.Game('1989年春夏之交的政治風波'))
+    with open('Finn_images.txt') as csvfile:
+        file = csv.reader(csvfile)
+        for rec in file:
+            finnArray.append(rec[0])
+    print('Finn Images')
+    print(finnArray)
+    csvfile.close
+
+    with open('Status_documentation.txt', encoding= "UTF-8") as csvfile:
+        file = csv.reader(csvfile)
+
+        for rec in file:
+            statusArray.append(rec[0])
+    print('Status system')
+    print(statusArray)
+    csvfile.close
+
+
+
     await general_channel.send('Hell yeah brother (Mini Weston online)')
+    await client.wait_until_ready()
+    background_task.start()
 
+
+
+@tasks.loop(seconds= 86400)
+async def background_task():
+    startUpInt = random.randint(0, len(statusArray))
+    startUpStatus = ""
+    general_channel = client.get_channel(738603332637294642)
+
+    if len(statusesUsed) >= len(statusArray):
+        statusesUsed.clear()
+        await general_channel.send("All statuses used. CLEARING.")
+
+    while startUpInt in statusesUsed:
+        startUpInt = random.randint(0, len(statusArray))
+    else:
+        statusesUsed.append(startUpInt)
+
+    startUpStatus = statusArray[startUpInt] 
+
+    await client.change_presence(status = discord.Status.do_not_disturb, activity= discord.Game(startUpStatus))
+    await general_channel.send("Status changed to: " + startUpStatus)
+    
 def isAdmin(uID):
     if uID in adminID:
         return True 
     else:
         return False
 
+def isWeston(uID):
+    if uID == westonid:
+        return True
+    else: 
+        return False
+
+@client.command(name = 'status')
+async def version(context):
+    if context.message.author.id in adminID:
+        await context.message.channel.send(statusesUsed)
+    else:
+        await context.message.channel.send("Shut up")
+
+@client.command(name = 'changestatus')
+async def changestatus(context, number):
+    if context.author.id in adminID:
+        startUpInt = int(number)
+        startUpInt = startUpInt - 1
+        startUpStatus = ""
+        general_channel = client.get_channel(738603332637294642)
+        if startUpInt < len(statusArray):    
+
+            if len(statusesUsed) >= len(statusArray):
+                statusesUsed.clear()
+                await general_channel.send("All statuses used. CLEARING.")
+            statusesUsed.append(startUpInt)
+
+            startUpStatus = statusArray[startUpInt]
+
+            await client.change_presence(status = discord.Status.do_not_disturb, activity= discord.Game(startUpStatus))
+            await context.channel.send("Status changed to: " + startUpStatus)
+        else:
+            await context.channel.send("Send a proper number next time")
+    else:
+        await context.channel.send ("Shut up, nerd")
 
 
-@client.command(name='test')
-async def version(context, member:discord.Member):
+@changestatus.error
+async def changestatusRandom(context, error):
+
+
+    if isinstance(error, commands.MissingRequiredArgument):
+
+        if context.message.author.id in adminID:
+            startUpInt = random.randint(0, len(statusArray))
+            startUpStatus = ""
+            general_channel = client.get_channel(738603332637294642)
+            
+
+            if len(statusesUsed) >= len(statusArray):
+                statusesUsed.clear()
+                await general_channel.send("All statuses used. CLEARING.")
+
+            while startUpInt in statusesUsed:
+                startUpInt = random.randint(0, len(statusArray))
+            else:
+                statusesUsed.append(startUpInt)
+
+            startUpStatus = statusArray[startUpInt]
+
+            await client.change_presence(status = discord.Status.do_not_disturb, activity= discord.Game(startUpStatus))
+            await context.channel.send("Status changed to: " + startUpStatus)
+        else:
+            await context.author.channel.send("Shut up, nerd")
+
+
+@client.command(name = 'powermove')
+async def version(context, nick):
+    if context.message.author.id == westonid:
+        guild = client.get_guild(guildID)
+        for member in guild.members:
+            if member.id != mattid:
+                await member.edit(nick=nick)
+
+@client.command(name = 'seduction')
+async def version(context, nick, member:discord.Member):
+    if context.message.author.id == westonid:
+        guild = client.get_guild(guildID)
+        if member.id != mattid:
+            await member.edit(nick=nick)
+
+@client.command(name= 'poll')
+async def version(context, *args):
     
-    for i in range(len(user)):
-        print(member.id)
-        if member.id == int(userid[i]):
-            print("Test")
-            await context.message.channel.send(user[i])
-        
+    
+    thing = list(args)
+    if (not(len(thing) > 10)):
+        myEmbed = discord.Embed(title = thing[0],color = 0xFFD700)
+        for i in range(len(thing)-1):
+            myEmbed.add_field(name =  pollEmojis[i], inline = False, value = "**"+thing[i+1]+"**" )
+        message = await context.message.channel.send(embed=myEmbed)
+        for i in range(len(thing)-1):
+            await message.add_reaction(pollEmojis[i])
+    else:
+        await context.message.channel.send("Yo that's too many awnsers (max 9)")
 
-
+@client.command(name = 'help')
+async def version(context):
+    myEmbed = discord.Embed(title = "Mini Weston help command", color = 0xffffff)
+    myEmbed.add_field(name = "----------USER COMMANDS----------", value = "Commands that be used by everyone")
+    myEmbed.add_field(name = "-help", inline = False, value = "(this command) shows the list of Mini Weston commands available**")
+    myEmbed.add_field(name = "-dickturbin [any value from 1 to 42069]", inline = False, value = "Sends a randomly selected user in a voice channel to every voice channel on the server (Must be in a voice channel to use) [ex: -dickturbin 69]" )
+    myEmbed.add_field(name = "-anime", inline = False, value = "Sends one of the 60 Weston reviewed anime shows randomly")
+    myEmbed.add_field(name = "-dm", inline = False, value = "...just try using it")
+    myEmbed.add_field(name = "-poll [\"Question\"] [\"answer 1\"] [\"answer 2\"]", inline = False, value = "Run a poll on the server. You can have up to 9 possible awnsers to the poll [ex: -poll \"Is Weston a chad?\" \"Yes\" \"No\" \"Maybe?\" \"Totally\"" )
+    myEmbed.add_field(name = "----------ULTIMATE HORNY TRIBUNAL COMMANDS----------", value = "Commands that can be used by the Ultimate Horny Tribunal")
+    myEmbed.add_field(name = "-sentence [@user]", inline = False, value = "Sentence a user to horny jail by applying the Manwhore role [ex. -sentence @Weston]")
+    myEmbed.add_field(name = "-solitary [@user]", inline = False, value = "Send a user to solitary, stopping them from posting images or gifs to trusted channels (user must be a Manwhore first) [ex. -solitary @Weston]")
+    myEmbed.add_field(name = "-release [@user]", inline = False, value = "Release a user from Manwhore or Solitary [ex. -release @Weston]")
+    myEmbed.add_field(name = "----------WESTON COMMANDS----------", value = "Commands that can only be used by Weston")
+    myEmbed.add_field(name = "-seduction [name] [@user]", inline = False, value = "Changes the selected users nickname [ex. -seduction Pissbaby @Weston]")
+    myEmbed.add_field(name = "-powermove [name]", inline = False, value = "Changes the nickname of every user on the server (God save us) [ex. -powermove Pissbaby]")
+    myEmbed.add_field(name = "-kick [@user]", inline = False, value = "Kicks the selected user from the server [ex. -kick @A Rock]")
+    myEmbed.add_field(name = "----------ADMIN COMMANDS----------", value = "Commands that can only be used by admins and owners")
+    myEmbed.add_field(name = "-status", inline = False, value = "Shows all of the used status while Mini Weston has been online")
+    myEmbed.add_field(name = "-changestatus [any value from 1 to 122(not required)]", inline = False, value = "Changes the status of Mini Weston with the number selected (if a number is not supplied the status will be randomly selected)")
+    myEmbed.add_field(name = "-addrole [@role] [channelID]", inline = False, value = "add a react role to Mini Weston, make sure the role isn't already added [ex. -addrole @left-beef 827605561527894116]")
+    myEmbed.add_field(name = "-removerole [@role]", inline = False, value = "removes a role from the react role catalog (MAKE SURE TO USE THIS COMMAND BEFORE REMOVING THE MESSAGE, WAKKY SHIT IS GONNA HAPPEN IF YOU DON'T) [ex. -removerole @left-beef]")
+    await context.message.channel.send(embed = myEmbed)     
 
 @client.command(name = 'dickturbin')
 async def version(context, number):
-    guild = client.get_guild(785260019209863220)
+    guild = client.get_guild(guildID)
     caller = context.author.voice.channel.id
     voice_channel = client.get_channel(caller)
 
-
     members = voice_channel.members
     memids = []
+
     for member in members:
         memids.append(member.id)
     value = random.randint(0,len(memids)-1)
@@ -94,9 +272,6 @@ async def version(context, number):
     if (loopcount == int(number)):
         await member.move_to(voice_channel)
     
- 
-
-
 #anime command
 @client.command(name='anime')
 async def version(context):
@@ -528,8 +703,6 @@ async def version(context):
         myEmbed.add_field(name = 'Loli Rating: ', value = '10/10', inline = False)
         await context.message.channel.send(embed=myEmbed)        
         
-
-
 #Dm command
 @client.command(name='dm')
 async def version(context): 
@@ -547,9 +720,41 @@ async def kick(context, member: discord.Member):
     else: 
         await context.message.channel.send('You don\'t have those permissions Boom! Boom! Boom! (flips table)')
 
+@client.command(name = "sentence")
+async def add_roles(context, member: discord.Member):
+    guild = client.get_guild(guildID)
+    role = discord.utils.get(guild.roles, name="Manwhore")
+    if((context.message.author.id in deciderID) and member.id not in deciderID):
+        await member.add_roles(role)
+    elif(context.message.author.id  not in deciderID and member.id not in deciderID):
+        await context.message.channel.send("Get outta here you horny animal!")
+    elif(context.message.author.id  not in deciderID and member.id in deciderID):
+        await context.message.channel.send("PERISH HORNY SCUM.")
+        await context.message.author.add_roles(role)
 
+@client.command(name = "release")
+async def remove_roles(context, member: discord.Member):
+        guild = client.get_guild(guildID)
+        horny = discord.utils.get(guild.roles, name="Manwhore")
+        solitary = discord.utils.get(guild.roles, name = "Nut Free Zone")
+        if((context.message.author.id in deciderID) and horny in member.roles):
+            await member.remove_roles(horny)
+        if((context.message.author.id in deciderID) and solitary in member.roles):
+            await member.remove_roles(solitary)
+        
 
-@client.command(name = "reaction_add_role")
+@client.command(name = "solitary")
+async def add_roles(context, member: discord.Member):
+    guild = client.get_guild(guildID)
+    solitary = discord.utils.get(guild.roles, name = "Nut Free Zone")
+    horny = discord.utils.get(guild.roles, name="Manwhore")
+    if((context.message.author.id in deciderID) and (member.id not in deciderID) and (horny in member.roles)):
+        await member.add_roles(solitary)
+    elif((context.message.author.id in deciderID) and (horny not in member.roles)):
+        await context.message.channel.send("User must be a Manwhore")
+    
+
+@client.command(name = "addrole")
 async def reaction_add_role(context, role:discord.Role, channelid):
 
     if role != None and str(role) not in str(rolename) and isAdmin(context.author.id):
@@ -562,8 +767,11 @@ async def reaction_add_role(context, role:discord.Role, channelid):
         
         try: 
             file = open('React_Role_documentation.txt', 'a')
-            
-            file.write("\n{0},{1}".format(role, message.id))                    
+            if len(rolename)-1 == 0:
+                file.write("{0},{1}".format(role, message.id))
+            else:
+                file.write("\n{0},{1}".format(role, message.id)) 
+
         except:
             print("React role file does not exsist!?")
         
@@ -573,18 +781,22 @@ async def reaction_add_role(context, role:discord.Role, channelid):
         await context.send("Stop sucking toes (try again)")
 
 
-@client.command(name = "reaction_remove_role")
+@client.command(name = "removerole")
 async def reaction_remove_role(context, role:discord.Role):
-    if (role.name not in rolename):
+    if ((role.name not in rolename) and isAdmin(context.author.id)): 
         await context.send("That role was not added")
     elif isAdmin(context.author.id): 
         for x in range(0,len(rolename)):
+            
             if str(rolename[x-1]) == str(role):
+                
                 del rolename[x-1]
                 del roleid[x-1]
                 await context.send("Role '" + role.name + "' Has been removed. (remove the message yourself, loser)")
                 
+
                 file = open('React_Role_documentation.txt', 'w')    #w overwrites the file
+                
 
                 for i in range(0, len(roleid)):
                     if i == 0:
@@ -592,15 +804,14 @@ async def reaction_remove_role(context, role:discord.Role):
                     else:
                         file.write("\n{0},{1}".format(rolename[i], roleid[i]))
 
-            file.close()
+                file.close()
  
-
 
 @client.event
 async def on_raw_reaction_add(payload): 
     if not payload.member.bot:
         message = payload.message_id
-        guild = await client.fetch_guild(payload.guild_id)
+        guild = client.get_guild(guildID)
         for x in range(0,len(roleid)):
 
             
@@ -608,8 +819,6 @@ async def on_raw_reaction_add(payload):
             
             
             if str(message) == str(target):
-                guild_id = payload.guild_id
-                guild = discord.utils.find(lambda g : g.id == guild_id, client.guilds)
                 emoji = payload.emoji.name
                 role = discord.utils.get(guild.roles, name=rolename[x])
                 member = payload.member
@@ -617,16 +826,15 @@ async def on_raw_reaction_add(payload):
                 if role != None and emoji == "✅":
                     await member.add_roles(role)
                 
-
-                
+              
 @client.event
 async def on_raw_reaction_remove(payload):
-       guild = await client.fetch_guild(payload.guild_id)
+       guild = client.get_guild(guildID)
        member = await guild.fetch_member(payload.user_id)
        
        if not member.bot:
         message = payload.message_id
-        guild = await client.fetch_guild(payload.guild_id)
+        
         for x in range(0,len(roleid)):
 
             
@@ -634,8 +842,6 @@ async def on_raw_reaction_remove(payload):
             
             
             if str(message) == str(target):
-                guild_id = payload.guild_id
-                guild = discord.utils.find(lambda g : g.id == guild_id, client.guilds)
                 emoji = payload.emoji.name
                 role = discord.utils.get(guild.roles, name=rolename[x])
 
@@ -646,23 +852,29 @@ async def on_raw_reaction_remove(payload):
 @client.event
 async def on_message(message):
     if not message.author.bot:
-        if "sex" in message.content or "Sex" in message.content:
-            await message.author.send('https://tenor.com/view/horny-jail-bonk-dog-hit-head-stop-being-horny-gif-17298755')
+        text = message.content
+        text = text.lower()
+         
+        if "sex" in text:
+            if message.channel.id != 738961237303492730:
+                await message.author.send('https://tenor.com/view/horny-jail-bonk-dog-hit-head-stop-being-horny-gif-17298755')
+        if "finn" in text:
+            selected = random.randint(0, len(finnArray))
+            pic = finnArray[selected]
 
-
+            await message.channel.send(pic)
     await client.process_commands(message)
                          
-
 
 @client.event
 async def on_member_join(member):
     embed = discord.Embed(title="Here are a few things you might need to know:", color= 0x00ff00)
     embed.set_author(name = "Welcome to NDOM!")
-    embed.add_field(name = "Go to the channel section called Roles", value = "You can see it under the \"OG shit\" section", inline = False)
-    embed.add_field(name = "Select the roles that you want!", value = "All you have to do is react to the message with the coresponding emoji")
+    embed.add_field(name = "Go to the channel section called Roles That Require Assigning", value = "It's the third section, under \"Misc\"", inline = False)
+    embed.add_field(name = "Select the roles that you want!", value = "All you have to do is react to the message with the checkmark")
     embed.add_field(name = "You can call our personal bot Mini Weston in any chat",value = "Try using the -help command", inline = False)
     await member.send(embed=embed)
 
 
-#run the client on the server
+#run the client on the server and background task (change status every 24 hours)
 client.run('Nzg1MjU4MDcyNTEwODI0NDQ5.X81OkQ.Fhi7ul3gSrsFN5vNAo3AvSw0ycw')
