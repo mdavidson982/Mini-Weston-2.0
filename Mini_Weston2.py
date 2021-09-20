@@ -9,7 +9,9 @@ from discord.client import Client
 from discord.enums import Status
 from discord.ext import commands
 from discord.ext import tasks
+import youtube_dl
 import csv
+
 
 adminID = [226067872084918272,356190294645145610,314426905812008963,215322500047962113,226065427732627459]
 
