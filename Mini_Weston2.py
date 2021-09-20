@@ -12,6 +12,7 @@ from discord.ext import tasks
 import csv
 
 adminID = [226067872084918272,356190294645145610,314426905812008963,215322500047962113,226065427732627459]
+
 deciderID =[332321662513053696,255776481832206337,376381640039202827]
 intents = discord.Intents.all()
 ReactRolefile = open('React_Role_documentation.txt', 'r+')
