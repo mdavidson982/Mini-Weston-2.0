@@ -9,7 +9,7 @@ from discord.client import Client
 from discord.enums import Status
 from discord.ext import commands
 from discord.ext import tasks
-#import youtube_dl
+import youtube_dl
 import csv
 
 
