@@ -19,7 +19,7 @@ deciderID =[332321662513053696,255776481832206337,376381640039202827]
 intents = discord.Intents.all()
 ReactRolefile = open('React_Role_documentation.txt', 'r+')
 
-
+ 
 #Client (our bot)
 client = commands.Bot(command_prefix='-', intents = intents)
 
