@@ -712,12 +712,12 @@ async def version(context):
     await context.message.author.send('https://tenor.com/view/thethaooxbet-oxbet-gif-19204644')  
 
 
-@client.command(name = 'kick', pass_context = True)
+@client.command(name = 'peg', pass_context = True)
 async def kick(context, member: discord.Member):
     if(context.message.author.id == westonid and member.id != westonid):
     
         await member.kick()
-        await context.message.channel.send('User ' + member.display_name + ' has sucked tomboy toes')
+        await context.message.channel.send('User ' + member.display_name + ' was pegged into oblivion')
     elif(member.id == westonid):
         await context.message.channel.send('I own the server, watch your tongue')
     else: 
