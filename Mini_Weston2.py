@@ -112,7 +112,7 @@ async def background_task():
         await general_channel.send("All statuses used. CLEARING.")
 
     while startUpInt in statusesUsed:
-        startUpInt = random.randint(0, len(statusArray))
+        startUpInt = random.randint(0, len(statusArray)-1)
     else:
         statusesUsed.append(startUpInt)
 
