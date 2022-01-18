@@ -862,7 +862,7 @@ async def on_message(message):
             if message.channel.id != 738961237303492730:
                 await message.author.send('https://tenor.com/view/horny-jail-bonk-dog-hit-head-stop-being-horny-gif-17298755')
         if "finn" in text:
-            selected = random.randint(0, len(finnArray))
+            selected = random.randint(0, len(finnArray)-1)
             pic = finnArray[selected]
 
             await message.channel.send(pic)
