@@ -714,7 +714,7 @@ async def version(context):
 
 @client.command(name = 'kick', pass_context = True)
 async def kick(context, member: discord.Member):
-    if(context.message.author.id == westonid and member.id != westonid):
+    if(context.message.author.id == westonid and member.id != westonid and member.id not in adminID):
     
         await member.kick()
         await context.message.channel.send('User ' + member.display_name + ' has sucked tomboy toes')
